@@ -1,0 +1,26 @@
+if ($_POST) {
+    $ad_soyad = $_POST['name_surname'];
+    $e_posta = $_POST['email'];
+    $password = $_POST['password'];
+    $passwordd = sha1(md5($password));
+
+    if (!$ad_soyad || !$e_posta || !$password) {
+        echo '<script>Swal.fire("Başarısız", "Gerkli alanları doldurun", "error"); </script>';
+    } else {
+        $var_mi = $db->prepare("SELECT email FROM uye_kayıt WHERE Email=:e");
+        $var_mi->execute(array(':e' => $e_posta));
+
+        if ($var_mi->rowCount()) {
+            echo '<script>Swal.fire("Başarısız", "Böyle bir e-posta adresi zaten kayıtlı !!!", "error"); </script>';
+        } else {
+            $kayit = $db->prepare("INSERT INTO uye_kayıt SET Name=:n,Email=:e,Password=:p");
+            $kayit->execute([':n' => $ad_soyad, ':e' => $e_posta, ':p' => $passwordd]);
+
+            if ($kayit) {
+                echo '<script>Swal.fire("Başarılı", "kayıdınız oluşturuldu", "success"); </script>';
+            } else {
+                echo '<script>Swal.fire("Başarısız", "Sonra tekrar deneyiniz", "error"); </script>';
+            }
+        }
+    }
+}
